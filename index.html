@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>LK Converter — YouTube para MP4 e MP3</title>
+<meta name="description" content="Converta vídeos do YouTube para MP4 ou MP3 direto do navegador. Cole o link, escolha o formato e baixe." />
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><rect width=%22100%22 height=%22100%22 rx=%2222%22 fill=%22%23101114%22/><text x=%2250%22 y=%2266%22 font-family=%22Arial%22 font-weight=%22700%22 font-size=%2244%22 fill=%22%23ffb020%22 text-anchor=%22middle%22>LK</text></svg>" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Oswald:wght@500;600&family=Manrope:wght@400;500;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="/css/style.css" />
+</head>
+<body>
+
+<header class="site-header">
+  <div class="wrap">
+    <a href="/" class="nameplate">
+      <span class="nameplate__badge">LK</span>
+      <span class="nameplate__word">Converter</span>
+    </a>
+    <div class="server-status">
+      <span class="led-dot" id="serverLed"></span>
+      <span id="serverStatusText">Verificando servidor…</span>
+    </div>
+  </div>
+</header>
+
+<main>
+  <section class="hero">
+    <div class="wrap">
+      <p class="hero__eyebrow">Canal de vídeo <span>&amp;</span> canal de áudio · YouTube → MP4 / MP3</p>
+      <h1>Cole o link.<br />Escolha o formato.<br />Baixe.</h1>
+      <p class="lede">Converta vídeos do YouTube para MP4 ou MP3 direto do navegador. O processamento roda no servidor — você só recebe o arquivo pronto.</p>
+
+      <div class="deck" id="deck" data-reveal>
+        <span class="deck__screw deck__screw--tl"></span>
+        <span class="deck__screw deck__screw--tr"></span>
+        <span class="deck__screw deck__screw--bl"></span>
+        <span class="deck__screw deck__screw--br"></span>
+
+        <div class="deck__row">
+          <label class="input-slot">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M10 13a5 5 0 0 0 7.07 0l2.83-2.83a5 5 0 0 0-7.07-7.07l-1.5 1.5"/><path d="M14 11a5 5 0 0 0-7.07 0L4.1 13.83a5 5 0 0 0 7.07 7.07l1.5-1.5"/></svg>
+            <input type="text" id="urlInput" placeholder="Cole aqui o link do YouTube…" autocomplete="off" spellcheck="false" />
+          </label>
+          <button class="btn btn--fetch" id="fetchBtn" type="button">Buscar vídeo</button>
+        </div>
+
+        <div class="info-label" id="infoLabel">
+          <img id="infoThumb" src="" alt="" />
+          <div>
+            <p class="info-label__title" id="infoTitle"></p>
+            <p class="info-label__meta" id="infoMeta"></p>
+          </div>
+        </div>
+
+        <div class="format-toggle" id="formatToggle">
+          <span class="format-toggle__thumb"></span>
+          <button type="button" class="is-active" id="btnMp4" data-format="mp4">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="6" width="20" height="14" rx="2"/><path d="M9 10l6 3-6 3v-6z" fill="currentColor" stroke="none"/><path d="M7 3h10"/></svg>
+            MP4 · Vídeo
+          </button>
+          <button type="button" id="btnMp3" data-format="mp3">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>
+            MP3 · Áudio
+          </button>
+        </div>
+
+        <div class="quality-row" id="qualityRow">
+          <button type="button" class="is-active" data-quality="1080p">1080p</button>
+          <button type="button" data-quality="720p">720p</button>
+          <button type="button" data-quality="480p">480p</button>
+          <button type="button" data-quality="360p">360p</button>
+        </div>
+
+        <div class="deck__warning" id="ffmpegWarning">
+          ⚠ Ffmpeg não detectado no servidor — MP3 e mesclagem de MP4 em alta qualidade ficam indisponíveis até instalar o ffmpeg.
+        </div>
+
+        <button class="btn btn--primary" id="convertBtn" type="button">Converter e baixar</button>
+
+        <div class="readout">
+          <div class="vu-meter is-idle" id="vuMeter"></div>
+          <p class="readout__status" id="statusText">AGUARDANDO LINK</p>
+        </div>
+
+        <p class="deck__note">Use apenas com vídeos que você tem direito de baixar. Respeite direitos autorais e os termos do YouTube.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="specs">
+    <div class="wrap">
+      <div class="specs__grid">
+        <div class="specs__item">
+          <p class="specs__label">Formatos de saída</p>
+          <p class="specs__value">MP4 · MP3</p>
+        </div>
+        <div class="specs__item">
+          <p class="specs__label">Qualidade máxima</p>
+          <p class="specs__value">Até 1080p</p>
+        </div>
+        <div class="specs__item">
+          <p class="specs__label">Processamento</p>
+          <p class="specs__value">No servidor</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="path">
+    <div class="wrap">
+      <p class="section-heading">Caminho do sinal</p>
+      <h2>Da entrada até o arquivo no seu dispositivo.</h2>
+      <div class="path__steps">
+        <div class="path__step">
+          <span class="path__num">01</span>
+          <h3>Entrada</h3>
+          <p>Cole o link do vídeo do YouTube no campo acima.</p>
+        </div>
+        <div class="path__step">
+          <span class="path__num">02</span>
+          <h3>Processamento</h3>
+          <p>Escolha MP4 ou MP3 e, para vídeo, a qualidade desejada.</p>
+        </div>
+        <div class="path__step">
+          <span class="path__num">03</span>
+          <h3>Saída</h3>
+          <p>Baixe o arquivo pronto direto no seu dispositivo.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="faq">
+    <div class="wrap">
+      <p class="section-heading">Manual</p>
+      <h2>Perguntas frequentes</h2>
+
+      <div class="faq__item">
+        <button class="faq__q" type="button">
+          <span class="tag">§01</span> Preciso instalar algum programa?
+          <span class="plus">+</span>
+        </button>
+        <div class="faq__a"><p>Não. Todo o processamento acontece no servidor do LK Converter — você só baixa o arquivo final no navegador.</p></div>
+      </div>
+
+      <div class="faq__item">
+        <button class="faq__q" type="button">
+          <span class="tag">§02</span> Quais formatos são suportados?
+          <span class="plus">+</span>
+        </button>
+        <div class="faq__a"><p>Vídeo em MP4, com qualidade selecionável até 1080p, e áudio em MP3.</p></div>
+      </div>
+
+      <div class="faq__item">
+        <button class="faq__q" type="button">
+          <span class="tag">§03</span> Existe limite de duração do vídeo?
+          <span class="plus">+</span>
+        </button>
+        <div class="faq__a"><p>Vídeos mais longos levam mais tempo para processar, mas não há um limite fixo de duração.</p></div>
+      </div>
+
+      <div class="faq__item">
+        <button class="faq__q" type="button">
+          <span class="tag">§04</span> É seguro baixar vídeos do YouTube?
+          <span class="plus">+</span>
+        </button>
+        <div class="faq__a"><p>Baixe apenas conteúdo que você tem direito de usar, respeitando os termos do YouTube e os direitos autorais dos criadores.</p></div>
+      </div>
+
+      <div class="faq__item">
+        <button class="faq__q" type="button">
+          <span class="tag">§05</span> Por que minha conversão falhou?
+          <span class="plus">+</span>
+        </button>
+        <div class="faq__a"><p>O link pode estar incorreto, privado ou indisponível — ou o servidor pode estar sem o ffmpeg configurado para o formato escolhido.</p></div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer class="site-footer">
+  <div class="wrap">
+    <div class="footer__plate">
+      <strong>LK CONVERTER</strong> — MODELO YT-01<br />
+      Feito para quem só quer o arquivo.<br />
+      © 2026 LK Converter. Para uso pessoal, respeitando direitos autorais.
+    </div>
+  </div>
+</footer>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+<script src="/js/script.js"></script>
+</body>
+</html>
