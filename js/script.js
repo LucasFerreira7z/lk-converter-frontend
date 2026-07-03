@@ -1,7 +1,7 @@
 (() => {
   const API_BASE = location.hostname === "127.0.0.1" || location.hostname === "localhost"
     ? "http://127.0.0.1:8034"
-    : "https://lk-converter-backend.up.railway.app";
+    : "https://lk-backend-production-91d8.up.railway.app";
   const API = `${API_BASE}/api`;
 
   const els = {
